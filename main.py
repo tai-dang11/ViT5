@@ -21,24 +21,24 @@ from google.colab import auth
 
 auth.authenticate_user()
 
-if ON_CLOUD:
-    print("Setting up GCS access...")
-
-    # Set credentials for GCS reading/writing from Colab and TPU.
-    TPU_TOPOLOGY = "v2-8"
-    try:
-        tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU zdetection
-        TPU_ADDRESS = "10.15.69.19"
-        # TPU_ADDRESS = tpu.get_master()
-        print('Running on TPU:', TPU_ADDRESS)
-    except ValueError:
-        raise BaseException(
-            'ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
-
-    tf.config.experimental_connect_to_host(TPU_ADDRESS)
-    tensorflow_gcs_config.configure_gcs_from_colab_auth()
-
-tf.disable_v2_behavior()
+# if ON_CLOUD:
+#     print("Setting up GCS access...")
+#
+#     # Set credentials for GCS reading/writing from Colab and TPU.
+TPU_TOPOLOGY = "v2-8"
+#     try:
+#         tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU zdetection
+#         TPU_ADDRESS = "10.15.69.19"
+#         # TPU_ADDRESS = tpu.get_master()
+#         print('Running on TPU:', TPU_ADDRESS)
+#     except ValueError:
+#         raise BaseException(
+#             'ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
+#
+#     tf.config.experimental_connect_to_host(TPU_ADDRESS)
+#     tensorflow_gcs_config.configure_gcs_from_colab_auth()
+#
+# tf.disable_v2_behavior()
 
 # Improve logging.
 from contextlib import contextmanager
