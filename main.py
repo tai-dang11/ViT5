@@ -1,9 +1,20 @@
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
+import argparse
 import tensorflow.compat.v1 as tf
 import t5
 import tensorflow_gcs_config
+
+
+parser = argparse.ArgumentParser(description='Finetunning ViT5')
+parser.add_argument('-tpu', dest='tpu', type=str, help='tpu address', default='0.0.0.0')
+parser.add_argument('-task', dest='task', type=str, help='En to Vi(envi) or Vi to En(vien) task', default='envi')
+parser.add_argument('-eval', dest='eval', type=str, help='Eval test set', default='tst')
+parser.add_argument('-filtered', dest='filtered', type=str, help='filtered or full', default='total')
+parser.add_argument('-lr', dest='lr', type=float, help='learning rate', default=0.001)
+parser.add_argument('-steps', dest='steps', type=int, help='tpu address', default=16266)
+args = parser.parse_args()
+
 
 TPU_TOPOLOGY = "v2-8"
 
@@ -74,6 +85,20 @@ checkpoints = "gs://vien-translation/checkpoints/enviT5_finetune/mtet_envi_10000
 
 from datasets import load_metric
 
+eval = args.eval
+if eval == 'tst':
+    input_file = f'tst2013.{task[0:2]}.unfix'
+    output_file = f'{task}_predict_output.txt'
+    label_file = f"tst2013.{task[2:4]}.unfix"
+elif eval == 'phomt':
+    input_file = f'test.{task[0:2]}'
+    output_file = f'{task}_predict_output.txt'
+    label_file = f'test.{task[2:4]}'
+
+with open('predict_input.txt', 'w') as out:
+    for line in open(f'../data/{eval}/{input_file}'):
+        out.write(f"{task[0:2]}: {line}")
+
 predict_inputs_path = "gs://best_vi_translation/raw/DATA_V2/V2_training_data_by_domains/software.en.txt"
 predict_outputs_path ="gs://best_vi_translation/raw/DATA_V2/V2_training_data_by_domains/software.vi.txt"
 
@@ -87,6 +112,8 @@ with tf_verbosity_level('ERROR'):
           temperature=0,
           checkpoint_steps= -1,
       )
+
+prediction_files = sorted(tf.io.gfile.glob(predict_outputs_path + "*"))
 
 predictions = []
 references = []
